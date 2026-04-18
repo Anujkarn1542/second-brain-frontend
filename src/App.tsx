@@ -1,54 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { useEffect, useState } from "react";
+import HomePage from "@/pages/HomePage";
+import ChatPage from "@/pages/ChatPage";
+import DashboardPage from "@/pages/DashboardPage";
+import DocumentsPage from "@/pages/DocumentsPage";
+import SettingsPage from "@/pages/SettingsPage";
+import HowItWorksPage from "@/pages/HowItWorksPage";
+import Navbar from "@/components/layout/Navbar";
+import NotFoundPage from "@/pages/NotFoundPage";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [isDark, setIsDark] = useState<boolean>(() => {
+    return localStorage.getItem("theme") === "dark";
+  });
+
+  useEffect(() => {
+    if (isDark) {
+      document.documentElement.classList.add("dark");
+      localStorage.setItem("theme", "dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+      localStorage.setItem("theme", "light");
+    }
+  }, [isDark]);
+
+  const toggleTheme = () => setIsDark((prev) => !prev);
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <BrowserRouter>
+      <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+        <Navbar isDark={isDark} toggleTheme={toggleTheme} />
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/chat" element={<ChatPage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/how-it-works" element={<HowItWorksPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
       </div>
-
-      <h1>Vite + React</h1>
-
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          Count is {count}
-        </button>
-
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-
-      <p className="read-the-docs">
-        Documentation — Your questions, answered
-      </p>
-
-      <div>
-        <h3>Explore Vite</h3>
-        <p>Learn more</p>
-
-        <h3>Connect with us</h3>
-        <p>Join the Vite community</p>
-
-        <ul>
-          <li>GitHub</li>
-          <li>Discord</li>
-          <li>X.com</li>
-          <li>Bluesky</li>
-        </ul>
-      </div>
-    </>
-  )
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;
