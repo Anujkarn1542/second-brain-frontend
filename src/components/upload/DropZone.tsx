@@ -3,6 +3,7 @@ import { useDropzone } from "react-dropzone";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUploadDocument } from "@/hooks/useDocuments";
 import type { Document } from "@/types";
+import toast from "react-hot-toast";
 
 interface DropZoneProps {
   onUpload: (doc: Document) => void;
@@ -53,10 +54,30 @@ export default function DropZone({
     },
     [onUpload, onUploadComplete, uploadDocument],
   );
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: { "application/pdf": [".pdf"], "text/plain": [".txt"] },
+
+    onDropRejected: (fileRejections) => {
+      const error = fileRejections[0]?.errors[0];
+
+      if (!error) return;
+
+      if (error.code === "file-too-large") {
+        toast.error("File too large. Maximum size is 10MB.");
+      } else if (error.code === "file-invalid-type") {
+        toast.error("Only PDF or TXT files are allowed.");
+      } else if (error.code === "too-many-files") {
+        toast.error("Please upload only one file.");
+      } else {
+        toast.error("File upload rejected.");
+      }
+    },
+
+    accept: {
+      "application/pdf": [".pdf"],
+      "text/plain": [".txt"],
+    },
+
     maxFiles: 1,
     maxSize: 10 * 1024 * 1024,
     disabled: isPending,
