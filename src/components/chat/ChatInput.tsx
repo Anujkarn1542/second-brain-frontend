@@ -16,19 +16,23 @@ interface ChatInputProps {
   isLoading: boolean;
 }
 
+const MAX_LENGTH = 2000;
+
 const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
   ({ onSend, isLoading }, ref) => {
     const [value, setValue] = useState("");
     const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-    // Expose focus method to parent via ref
     useImperativeHandle(ref, () => ({
       focus: () => textareaRef.current?.focus(),
     }));
 
+    const trimmed = value.trim();
+    const isOverLimit = value.length > MAX_LENGTH;
+    const canSend = trimmed.length >= 2 && !isLoading && !isOverLimit;
+
     const handleSend = () => {
-      const trimmed = value.trim();
-      if (!trimmed || isLoading) return;
+      if (!canSend) return;
       onSend(trimmed);
       setValue("");
       if (textareaRef.current) textareaRef.current.style.height = "auto";
@@ -50,7 +54,14 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
 
     return (
       <div className="border-t border-gray-200 dark:border-gray-800 p-4">
-        <div className="flex items-end gap-2 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 focus-within:border-violet-400 dark:focus-within:border-violet-600 transition-colors">
+        <div
+          className={`flex items-end gap-2 bg-gray-50 dark:bg-gray-800 border rounded-xl px-4 py-3 transition-colors
+          ${
+            isOverLimit
+              ? "border-red-400 dark:border-red-600"
+              : "border-gray-200 dark:border-gray-700 focus-within:border-violet-400 dark:focus-within:border-violet-600"
+          }`}
+        >
           <textarea
             ref={textareaRef}
             value={value}
@@ -64,7 +75,7 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
           />
           <Button
             onClick={handleSend}
-            disabled={!value.trim() || isLoading}
+            disabled={!canSend}
             size="icon"
             className="w-8 h-8 rounded-lg bg-violet-600 hover:bg-violet-700 disabled:opacity-40 flex-shrink-0"
           >
@@ -86,14 +97,39 @@ const ChatInput = forwardRef<ChatInputRef, ChatInputProps>(
           </Button>
         </div>
 
-        <div className="flex items-center justify-between mt-2 px-1">
+        {/* Bottom bar */}
+        <div className="flex items-center justify-between mt-1.5 px-1">
           <p className="text-[10px] text-gray-400 dark:text-gray-600">
             Enter to send · Shift+Enter for new line
           </p>
-          <p className="text-[10px] text-gray-400 dark:text-gray-600 hidden sm:block">
-            ⌘K to focus · ⌘⇧N new chat
-          </p>
+          <div className="flex items-center gap-3">
+            {/* Character counter */}
+            {value.length > 0 && (
+              <span
+                className={`text-[10px] tabular-nums ${
+                  isOverLimit
+                    ? "text-red-500 font-medium"
+                    : value.length > MAX_LENGTH * 0.8
+                      ? "text-amber-500"
+                      : "text-gray-400 dark:text-gray-600"
+                }`}
+              >
+                {value.length}/{MAX_LENGTH}
+              </span>
+            )}
+            <p className="text-[10px] text-gray-400 dark:text-gray-600 hidden sm:block">
+              ⌘K focus · ⌘⇧N new chat
+            </p>
+          </div>
         </div>
+
+        {/* Over limit warning */}
+        {isOverLimit && (
+          <p className="text-[11px] text-red-500 mt-1 px-1">
+            Message is too long. Please shorten it to under {MAX_LENGTH}{" "}
+            characters.
+          </p>
+        )}
       </div>
     );
   },

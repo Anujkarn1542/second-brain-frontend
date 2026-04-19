@@ -11,6 +11,7 @@ import {
   Cell,
 } from "recharts";
 import api from "@/lib/axios";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface StatsResponse {
   total_documents: number;
@@ -123,6 +124,8 @@ export default function DashboardPage() {
     },
     refetchInterval: 15000,
   });
+
+  usePageTitle("Documents");
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

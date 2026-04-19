@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const features = [
   {
@@ -72,7 +73,10 @@ const steps = [
   { number: "03", label: "Ask questions, get cited answers" },
 ];
 
+
 export default function HomePage() {
+  usePageTitle("Home");
+
   return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col">
       {/* Hero */}

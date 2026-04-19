@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 const steps = [
   {
@@ -166,6 +167,7 @@ const colorMap: Record<string, string> = {
 export default function HowItWorksPage() {
   const [expanded, setExpanded] = useState<number | null>(null);
 
+  usePageTitle("How it works");
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       <motion.div

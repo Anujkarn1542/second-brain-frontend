@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 interface Settings {
   chunkSize: number;
@@ -28,6 +29,8 @@ function loadSettings(): Settings {
 export default function SettingsPage() {
   const [settings, setSettings] = useState<Settings>(loadSettings);
   const [saved, setSaved] = useState(false);
+
+  usePageTitle("Settings");
 
   const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
     setSettings((prev) => ({ ...prev, [key]: value }));

@@ -12,6 +12,7 @@ import type { Document, Message, Source } from "@/types";
 import { useRef } from "react";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import type { ChatInputRef } from "@/components/chat/ChatInput";
+import { usePageTitle } from "@/hooks/usePageTitle";
 
 type SidebarTab = "documents" | "history";
 
@@ -21,6 +22,9 @@ export default function ChatPage() {
   const [activeDocId, setActiveDocId] = useState<string | undefined>(undefined);
   const [isStreaming, setIsStreaming] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("documents");
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  usePageTitle("Chat");
 
   const chatInputRef = useRef<ChatInputRef>(null);
 
@@ -61,8 +65,6 @@ export default function ChatPage() {
     );
     if (pageCount > 0 && !activeDocId) setActiveDocId(realId);
   };
-
- 
 
   const handleRemoveDocument = (id: string) => {
     deleteDocument(id);
@@ -164,10 +166,10 @@ export default function ChatPage() {
 
   const readyDocuments = documents.filter((d) => d.status === "ready");
 
-   useKeyboardShortcuts({
-     onFocusChat: () => chatInputRef.current?.focus(),
-     onNewChat: handleNewChat,
-   });
+  useKeyboardShortcuts({
+    onFocusChat: () => chatInputRef.current?.focus(),
+    onNewChat: handleNewChat,
+  });
 
   return (
     <motion.div
@@ -176,8 +178,38 @@ export default function ChatPage() {
       transition={{ duration: 0.3 }}
       className="max-w-6xl mx-auto px-4 py-6 h-[calc(100vh-3.5rem)] flex gap-4"
     >
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/40 z-40 sm:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
       {/* LEFT SIDEBAR */}
-      <aside className="w-72 flex-shrink-0 flex flex-col gap-3 overflow-hidden">
+      <aside
+        className={`
+        fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-950 p-4
+        transform transition-transform duration-300
+        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}
+
+        sm:static sm:translate-x-0 sm:z-auto
+        sm:w-72 sm:flex-shrink-0 sm:flex sm:flex-col sm:gap-3
+        sm:bg-transparent sm:p-0 sm:overflow-hidden
+      `}
+      >
+        {/* Close button mobile only */}
+        <div className="flex items-center justify-between mb-3 sm:hidden">
+          <span className="font-medium text-sm text-gray-800 dark:text-gray-200">
+            Documents
+          </span>
+
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+          >
+            ✕
+          </button>
+        </div>
         {/* Tab switcher */}
         <div className="flex bg-gray-100 dark:bg-gray-800 rounded-lg p-1">
           {(["documents", "history"] as SidebarTab[]).map((tab) => (
@@ -271,6 +303,29 @@ export default function ChatPage() {
 
       {/* RIGHT — Chat */}
       <main className="flex-1 flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900 min-w-0">
+        <div className="flex items-center gap-2 px-4 py-2 border-b border-gray-100 dark:border-gray-800 sm:hidden">
+          <button
+            onClick={() => setSidebarOpen(true)}
+            className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+            Documents & History
+          </button>
+        </div>
         <ChatWindow
           messages={messages}
           isLoading={isStreaming}
