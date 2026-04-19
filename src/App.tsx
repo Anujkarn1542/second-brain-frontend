@@ -8,6 +8,7 @@ import SettingsPage from "@/pages/SettingsPage";
 import HowItWorksPage from "@/pages/HowItWorksPage";
 import Navbar from "@/components/layout/Navbar";
 import NotFoundPage from "@/pages/NotFoundPage";
+import OfflineBanner from "@/components/layout/OfflineBanner";
 
 function App() {
   const [isDark, setIsDark] = useState<boolean>(() => {
@@ -29,6 +30,7 @@ function App() {
   return (
     <BrowserRouter>
       <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
+        <OfflineBanner />
         <Navbar isDark={isDark} toggleTheme={toggleTheme} />
         <Routes>
           <Route path="/" element={<HomePage />} />

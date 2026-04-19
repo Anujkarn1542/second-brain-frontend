@@ -9,6 +9,9 @@ import ChatHistory from "@/components/chat/ChatHistory";
 import { useDeleteDocument, useStreamQuery } from "@/hooks/useDocuments";
 import { useChatHistory } from "@/hooks/useChatHistory";
 import type { Document, Message, Source } from "@/types";
+import { useRef } from "react";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
+import type { ChatInputRef } from "@/components/chat/ChatInput";
 
 type SidebarTab = "documents" | "history";
 
@@ -18,6 +21,8 @@ export default function ChatPage() {
   const [activeDocId, setActiveDocId] = useState<string | undefined>(undefined);
   const [isStreaming, setIsStreaming] = useState(false);
   const [sidebarTab, setSidebarTab] = useState<SidebarTab>("documents");
+
+  const chatInputRef = useRef<ChatInputRef>(null);
 
   const { mutate: deleteDocument } = useDeleteDocument();
   const { mutate: streamQuery } = useStreamQuery();
@@ -56,6 +61,8 @@ export default function ChatPage() {
     );
     if (pageCount > 0 && !activeDocId) setActiveDocId(realId);
   };
+
+ 
 
   const handleRemoveDocument = (id: string) => {
     deleteDocument(id);
@@ -156,6 +163,11 @@ export default function ChatPage() {
   };
 
   const readyDocuments = documents.filter((d) => d.status === "ready");
+
+   useKeyboardShortcuts({
+     onFocusChat: () => chatInputRef.current?.focus(),
+     onNewChat: handleNewChat,
+   });
 
   return (
     <motion.div
@@ -259,8 +271,17 @@ export default function ChatPage() {
 
       {/* RIGHT — Chat */}
       <main className="flex-1 flex flex-col border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden bg-white dark:bg-gray-900 min-w-0">
-        <ChatWindow messages={messages} isLoading={isStreaming} />
-        <ChatInput onSend={handleSendMessage} isLoading={isStreaming} />
+        <ChatWindow
+          messages={messages}
+          isLoading={isStreaming}
+          readyDocuments={readyDocuments}
+          onSuggestedQuestion={handleSendMessage}
+        />
+        <ChatInput
+          ref={chatInputRef}
+          onSend={handleSendMessage}
+          isLoading={isStreaming}
+        />
       </main>
     </motion.div>
   );

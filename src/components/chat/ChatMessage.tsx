@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
 import type { Message } from "@/types";
 
@@ -7,18 +8,24 @@ interface ChatMessageProps {
 
 export default function ChatMessage({ message }: ChatMessageProps) {
   const isUser = message.role === "user";
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(message.content);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+      className={`flex ${isUser ? "justify-end" : "justify-start"} group`}
     >
       <div
         className={`max-w-[80%] flex flex-col gap-2 ${isUser ? "items-end" : "items-start"}`}
       >
-        {/* Avatar + bubble row */}
         <div
           className={`flex items-end gap-2 ${isUser ? "flex-row-reverse" : "flex-row"}`}
         >
@@ -47,6 +54,54 @@ export default function ChatMessage({ message }: ChatMessageProps) {
           </div>
         </div>
 
+        {/* Actions row — only for assistant */}
+        {!isUser && message.content && (
+          <div className="flex items-center gap-2 px-8 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <button
+              onClick={handleCopy}
+              className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+            >
+              {copied ? (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="text-green-500"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  <span className="text-green-500">Copied</span>
+                </>
+              ) : (
+                <>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
+                  </svg>
+                  Copy
+                </>
+              )}
+            </button>
+          </div>
+        )}
+
         {/* Source citations */}
         {message.sources && message.sources.length > 0 && (
           <div className="flex flex-wrap gap-1.5 px-8">
@@ -59,8 +114,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                 title={source.snippet}
                 className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg
                   bg-violet-50 dark:bg-violet-900/20
-                  border border-violet-200 dark:border-violet-800
-                  cursor-help group relative"
+                  border border-violet-200 dark:border-violet-800 cursor-help"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
