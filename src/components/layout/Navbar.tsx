@@ -24,8 +24,12 @@ export default function Navbar({ isDark, toggleTheme }: NavbarProps) {
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between gap-4">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2 group flex-shrink-0">
-          <div className="w-7 h-7 bg-violet-600 rounded-lg flex items-center justify-center group-hover:bg-violet-700 transition-colors">
-            <span className="text-white text-xs font-bold">SB</span>
+          <div className="w-7 h-7 rounded-lg overflow-hidden flex items-center justify-center">
+            <img
+              src="/favicon.svg"
+              alt="Second Brain Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <span className="font-semibold text-gray-900 dark:text-white hidden sm:block">
             Second Brain

@@ -256,8 +256,12 @@ export default function HomePage() {
       <footer className="border-t border-gray-100 dark:border-gray-800 py-8 px-4">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 bg-violet-600 rounded-md flex items-center justify-center">
-              <span className="text-white text-[10px] font-bold">SB</span>
+            <div className="w-6 h-6 rounded-md overflow-hidden flex items-center justify-center">
+              <img
+                src="/favicon.svg"
+                alt="Second Brain Logo"
+                className="w-full h-full object-contain"
+              />
             </div>
             <span className="text-sm text-gray-500 dark:text-gray-400">
               Second Brain
