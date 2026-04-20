@@ -12,6 +12,7 @@ import {
 } from "recharts";
 import api from "@/lib/axios";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import DashboardSkeleton from "@/components/skeletons/DashboardSkeleton";
 
 interface StatsResponse {
   total_documents: number;
@@ -125,8 +126,8 @@ export default function DashboardPage() {
     refetchInterval: 15000,
   });
 
-  usePageTitle("Documents");
-
+  usePageTitle("Dashboard");
+  if (isLoading) return <DashboardSkeleton />;
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
@@ -143,17 +144,6 @@ export default function DashboardPage() {
           Overview of your knowledge base
         </p>
       </motion.div>
-
-      {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className="h-28 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
-            />
-          ))}
-        </div>
-      )}
 
       {isError && (
         <div className="p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-sm text-red-600 dark:text-red-400 mb-8">

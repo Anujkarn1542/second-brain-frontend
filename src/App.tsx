@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 import HomePage from "@/pages/HomePage";
 import ChatPage from "@/pages/ChatPage";
@@ -10,6 +10,13 @@ import Navbar from "@/components/layout/Navbar";
 import NotFoundPage from "@/pages/NotFoundPage";
 import OfflineBanner from "@/components/layout/OfflineBanner";
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
 function App() {
   const [isDark, setIsDark] = useState<boolean>(() => {
     return localStorage.getItem("theme") === "dark";
@@ -32,6 +39,7 @@ function App() {
       <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-300">
         <OfflineBanner />
         <Navbar isDark={isDark} toggleTheme={toggleTheme} />
+        <ScrollToTop />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/chat" element={<ChatPage />} />

@@ -4,6 +4,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import api from "@/lib/axios";
+import { usePageTitle } from "@/hooks/usePageTitle";
+import DocumentsSkeleton from "@/components/skeletons/DocumentsSkeleton";
 
 interface DocItem {
   id: string;
@@ -20,6 +22,7 @@ interface StatsResponse {
 type SortKey = "name" | "chunks";
 
 export default function DocumentsPage() {
+  usePageTitle("Documents");
   const [search, setSearch] = useState("");
   const [sortBy, setSortBy] = useState<SortKey>("chunks");
   const queryClient = useQueryClient();
@@ -49,7 +52,7 @@ export default function DocumentsPage() {
       if (sortBy === "name") return a.name.localeCompare(b.name);
       return b.chunk_count - a.chunk_count;
     });
-
+  if (isLoading) return <DocumentsSkeleton />;
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">
       {/* Header */}
@@ -132,18 +135,6 @@ export default function DocumentsPage() {
           <option value="name">Sort by name</option>
         </select>
       </motion.div>
-
-      {/* Loading skeletons */}
-      {isLoading && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[1, 2, 3, 4, 5, 6].map((i) => (
-            <div
-              key={i}
-              className="h-32 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse"
-            />
-          ))}
-        </div>
-      )}
 
       {/* Empty state */}
       {!isLoading && filtered.length === 0 && (

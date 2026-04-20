@@ -13,6 +13,7 @@ import { useRef } from "react";
 import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 import type { ChatInputRef } from "@/components/chat/ChatInput";
 import { usePageTitle } from "@/hooks/usePageTitle";
+import ChatSidebarSkeleton from "@/components/skeletons/ChatSidebarSkeleton";
 
 type SidebarTab = "documents" | "history";
 
@@ -331,6 +332,7 @@ export default function ChatPage() {
           isLoading={isStreaming}
           readyDocuments={readyDocuments}
           onSuggestedQuestion={handleSendMessage}
+          onClearChat={() => setMessages([])}
         />
         <ChatInput
           ref={chatInputRef}

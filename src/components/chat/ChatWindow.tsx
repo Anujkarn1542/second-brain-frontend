@@ -1,15 +1,17 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence } from "framer-motion";
 import ChatMessage from "./ChatMessage";
 import SuggestedQuestions from "./SuggestedQuestions";
 import StatsBar from "@/components/layout/StatsBar";
 import type { Message, Document } from "@/types";
+import MessageSkeleton from "@/components/skeletons/MessageSkeleton";
 
 interface ChatWindowProps {
   messages: Message[];
   isLoading: boolean;
   readyDocuments: Document[];
   onSuggestedQuestion: (q: string) => void;
+  onClearChat: () => void; // ← add this
 }
 
 export default function ChatWindow({
@@ -17,9 +19,20 @@ export default function ChatWindow({
   isLoading,
   readyDocuments,
   onSuggestedQuestion,
+  onClearChat,
 }: ChatWindowProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    const handleScroll = () => setShowScrollTop(el.scrollTop > 400);
+    el.addEventListener("scroll", handleScroll);
+    return () => el.removeEventListener("scroll", handleScroll);
+  }, []);
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isLoading]);
@@ -103,48 +116,77 @@ export default function ChatWindow({
               <span className="text-xs text-gray-400 dark:text-gray-500">
                 {messages.length} messages
               </span>
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={onClearChat}
+                  className="text-xs text-gray-400 dark:text-gray-500 hover:text-red-500 transition-colors"
                 >
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                Export chat
-              </button>
+                  Clear
+                </button>
+                <button
+                  onClick={handleExport}
+                  className="flex items-center gap-1.5 text-xs text-gray-400 dark:text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Export chat
+                </button>
+              </div>
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto px-4 py-4 flex flex-col gap-4">
+          <div
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto relative px-4 py-4 flex flex-col gap-4"
+          >
             <AnimatePresence initial={false}>
               {messages.map((message) => (
                 <ChatMessage key={message.id} message={message} />
               ))}
             </AnimatePresence>
 
-            {isLoading && (
-              <div className="flex items-center gap-1 px-4 py-3 w-fit rounded-xl bg-gray-100 dark:bg-gray-800">
-                {[0, 1, 2].map((i) => (
-                  <span
-                    key={i}
-                    className="w-2 h-2 rounded-full bg-gray-400 dark:bg-gray-500 animate-bounce"
-                    style={{ animationDelay: `${i * 0.15}s` }}
-                  />
-                ))}
-              </div>
+            {isLoading && <MessageSkeleton />}
+
+            {showScrollTop && (
+              <button
+                onClick={() =>
+                  scrollContainerRef.current?.scrollTo({
+                    top: 0,
+                    behavior: "smooth",
+                  })
+                }
+                className="absolute top-16 right-4 z-10 w-8 h-8 rounded-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 flex items-center justify-center shadow-sm hover:border-violet-400 transition-colors"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-gray-500 dark:text-gray-400"
+                >
+                  <polyline points="18 15 12 9 6 15" />
+                </svg>
+              </button>
             )}
+
             <div ref={bottomRef} />
           </div>
         </>
