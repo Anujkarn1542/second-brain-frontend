@@ -20,7 +20,7 @@ export interface Source {
   document_name: string;
   page_number: number;
   snippet: string;
-  score?: number; // ← add this
+  score: number; // ← add this
 }
 
 export interface UploadResponse {

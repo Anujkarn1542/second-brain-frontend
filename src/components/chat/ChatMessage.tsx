@@ -133,7 +133,7 @@ export default function ChatMessage({ message }: ChatMessageProps) {
                 </svg>
                 <span className="text-[10px] text-violet-700 dark:text-violet-300 font-medium">
                   {source.document_name} · p.{source.page_number}
-                  {source.score !== undefined && (
+                  {source.score !== undefined && source.score > 0 && (
                     <span className="ml-1 opacity-60">
                       · {Math.round(source.score * 100)}%
                     </span>
